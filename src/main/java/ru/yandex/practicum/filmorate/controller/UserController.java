@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
@@ -14,8 +15,8 @@ import java.util.Map;
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    Map<Integer, User> users = new HashMap<>();
-    private Integer userId = 0;
+    private final Map<Long, User> users = new HashMap<>();
+    private Long userId = 0L;
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -40,18 +41,17 @@ public class UserController {
         if (users.containsKey(user.getId())) {
             users.replace(user.getId(), user);
         } else {
-            throw new RuntimeException("Такого пользователя нет");
+            throw new ValidationException("Такого пользователя нет");
         }
         return user;
     }
 
     protected void validateUser(User user) {
         if (user.getLogin().contains(" ")) {
-            throw new RuntimeException("Логин не должен содержать пробелы");
+            throw new ValidationException("Логин не должен содержать пробелы");
         }
         if (user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
     }
-
 }

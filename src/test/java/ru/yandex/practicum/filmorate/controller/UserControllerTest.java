@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.User;
@@ -16,7 +15,7 @@ public class UserControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        user = new User(1, "mail@mail.ru", "login", "Pavel", LocalDate.of(1988, 5, 10));
+        user = new User(1L, "mail@mail.ru", "login", "Pavel", LocalDate.of(1988, 5, 10));
         userController = new UserController();
     }
 

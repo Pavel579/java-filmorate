@@ -16,7 +16,7 @@ public class FilmControllerTest {
     @BeforeEach
     void beforeEach() {
         filmController = new FilmController();
-        film = new Film(1, "Terminator", "action", LocalDate.of(1984, 10, 26), 120);
+        film = new Film(1L, "Terminator", "action", LocalDate.of(1984, 10, 26), 120);
     }
 
     @Test

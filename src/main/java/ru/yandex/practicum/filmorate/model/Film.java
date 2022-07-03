@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @AllArgsConstructor
 public class Film {
-    private Integer id;
+    private Long id;
     @NotBlank
     @NotEmpty
     private String name;
