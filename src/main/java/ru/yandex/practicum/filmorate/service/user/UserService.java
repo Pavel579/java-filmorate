@@ -25,11 +25,7 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        if (inMemoryUserStorage.getUsers().containsKey(id)) {
-            return inMemoryUserStorage.getUsers().get(id);
-        } else {
-            throw new UserNotFoundException("Такого пользователя нет");
-        }
+        return inMemoryUserStorage.getUserById(id).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
     }
 
     public void addUserToStorage(User user) {

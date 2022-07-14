@@ -2,12 +2,14 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@Validated
 public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
     private final LocalDate MIN_DATE = LocalDate.of(1895, 12, 28);
@@ -65,7 +68,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getCountLikes(@RequestParam(required = false) Integer count) {
+    public List<Film> getCountLikes(@RequestParam(required = false, defaultValue = "10") @Positive Integer count) {
         return filmService.getCountLikes(count);
     }
 

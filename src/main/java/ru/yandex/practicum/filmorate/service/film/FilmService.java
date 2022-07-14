@@ -5,20 +5,21 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
-    private final InMemoryFilmStorage inMemoryFilmStorage;
-    private final InMemoryUserStorage inMemoryUserStorage;
+    private final FilmStorage inMemoryFilmStorage;
+    private final UserStorage inMemoryUserStorage;
 
     @Autowired
-    public FilmService(InMemoryFilmStorage inMemoryFilmStorage, InMemoryUserStorage inMemoryUserStorage) {
+    public FilmService(FilmStorage inMemoryFilmStorage, UserStorage inMemoryUserStorage) {
         this.inMemoryFilmStorage = inMemoryFilmStorage;
         this.inMemoryUserStorage = inMemoryUserStorage;
     }
@@ -28,11 +29,7 @@ public class FilmService {
     }
 
     public Film getFilmById(Long id) {
-        if (inMemoryFilmStorage.getFilms().containsKey(id)) {
-            return inMemoryFilmStorage.getFilms().get(id);
-        } else {
-            throw new FilmNotFoundException("Такого фильма нет");
-        }
+        return inMemoryFilmStorage.getFilmById(id).orElseThrow(() -> new FilmNotFoundException("Фильм не найден"));
     }
 
     public void addFilmToStorage(Film film) {
@@ -76,26 +73,9 @@ public class FilmService {
     }
 
     public List<Film> getCountLikes(Integer count) {
-        List<Film> filmsSortedByLikes = new ArrayList<>(inMemoryFilmStorage.getFilms().values());
-        List<Film> resultList = new ArrayList<>();
-        filmsSortedByLikes.sort(Comparator.comparing(Film::getQuantityOfLikes).reversed());
-        if (count != null) {
-            if (count >= filmsSortedByLikes.size()) {
-                resultList.addAll(filmsSortedByLikes);
-            } else {
-                for (int i = 0; i < count; i++) {
-                    resultList.add(filmsSortedByLikes.get(i));
-                }
-            }
-        } else {
-            if (filmsSortedByLikes.size() > 10) {
-                for (int i = 0; i < 10; i++) {
-                    resultList.add(filmsSortedByLikes.get(i));
-                }
-            } else {
-                resultList.addAll(filmsSortedByLikes);
-            }
-        }
-        return resultList;
+        return getAllFilms().stream()
+                .sorted(Comparator.comparing(Film::getQuantityOfLikes).reversed())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }

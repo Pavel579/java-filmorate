@@ -70,7 +70,10 @@ public class UserController {
         if (user.getLogin().contains(" ")) {
             throw new ValidationException("Логин не должен содержать пробелы");
         }
-        if (user.getName().isEmpty()) {
+        if (user.getName() == null) {
+            throw new ValidationException("Имя не существует");
+        }
+        if (user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
     }

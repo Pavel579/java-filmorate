@@ -15,11 +15,10 @@ import java.util.Set;
 public class Film {
     private Long id;
     @NotBlank
-    @NotEmpty
     private String name;
-    @Size(max = 50)
+    @Size(max = 200)
     private String description;
-    @Past()
+    @PastOrPresent
     private LocalDate releaseDate;
     @Positive
     private Integer duration;
