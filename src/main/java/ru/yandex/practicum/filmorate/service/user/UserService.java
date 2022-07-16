@@ -33,41 +33,30 @@ public class UserService {
     }
 
     public void updateUserInStorage(User user) {
-        if (inMemoryUserStorage.getUsers().containsKey(user.getId())) {
-            inMemoryUserStorage.updateUserInStorage(user);
-        } else {
-            throw new UserNotFoundException("Такого пользователя нет");
-        }
+        getUserById(user.getId());
+        inMemoryUserStorage.updateUserInStorage(user);
     }
 
     public void addUserFriend(Long userId, Long friendId) {
-        if (inMemoryUserStorage.getUsers().containsKey(userId) && inMemoryUserStorage.getUsers().containsKey(friendId)) {
-            User user = inMemoryUserStorage.getUsers().get(userId);
-            user.addFriend(friendId);
-            log.info("add friend");
-            inMemoryUserStorage.getUsers().put(userId, user);
-            user = inMemoryUserStorage.getUsers().get(friendId);
-            user.addFriend(userId);
-            inMemoryUserStorage.getUsers().put(friendId, user);
-        } else {
-            throw new UserNotFoundException("Позьзователь не существует");
-        }
+        User user = getUserById(userId);
+        User userFriend = getUserById(friendId);
+        user.addFriend(friendId);
+        log.info("add friend");
+        inMemoryUserStorage.getUsers().put(userId, user);
+        userFriend.addFriend(userId);
+        inMemoryUserStorage.getUsers().put(friendId, userFriend);
     }
 
     public void deleteUserFromFriends(Long userId, Long friendId) {
-        if (inMemoryUserStorage.getUsers().containsKey(userId)) {
-            inMemoryUserStorage.getUsers().get(userId).getFriends().remove(friendId);
-            inMemoryUserStorage.getUsers().get(friendId).getFriends().remove(userId);
-        } else {
-            throw new UserNotFoundException("Позьзователь не существует");
-        }
+        getUserById(userId).getFriends().remove(friendId);
+        getUserById(friendId).getFriends().remove(userId);
     }
 
     public List<User> getListOfFriends(Long userId) {
         List<User> userList = new ArrayList<>();
-        for (Long id : inMemoryUserStorage.getUsers().get(userId).getFriends()) {
+        for (Long id : getUserById(userId).getFriends()) {
             if (inMemoryUserStorage.getUsers().containsKey(id)) {
-                userList.add(inMemoryUserStorage.getUsers().get(id));
+                userList.add(getUserById(id));
             }
         }
         return userList;
@@ -76,21 +65,13 @@ public class UserService {
     public List<User> getCommonListOfFriends(Long userId, Long userOtherId) {
         List<User> usersList = new ArrayList<>();
         log.info("start common friends");
-        if (inMemoryUserStorage.getUsers().containsKey(userId) &&
-                inMemoryUserStorage.getUsers().containsKey(userOtherId)) {
-            try {
-                for (Long id : inMemoryUserStorage.getUsers().get(userId).getFriends()) {
-                    if (inMemoryUserStorage.getUsers().get(userOtherId).getFriends().contains(id)) {
-                        usersList.add(inMemoryUserStorage.getUsers().get(id));
-                        log.info("add friend");
-                    }
+        if (getUserById(userId).getFriends() != null && getUserById(userOtherId).getFriends() != null){
+            for (Long id : getUserById(userId).getFriends()) {
+                if (getUserById(userOtherId).getFriends().contains(id)) {
+                    usersList.add(getUserById(id));
+                    log.info("add friend");
                 }
-            } catch (NullPointerException e) {
-                log.info("Нет друзей");
             }
-            log.info("Common list of friends finish");
-        } else {
-            throw new UserNotFoundException("Такого пользователя нет");
         }
         return usersList;
     }

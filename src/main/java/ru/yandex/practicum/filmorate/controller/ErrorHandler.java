@@ -29,7 +29,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<?> exc(ConstraintViolationException ex) {
+    public ResponseEntity<String> exc(ConstraintViolationException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
