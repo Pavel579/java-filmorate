@@ -67,11 +67,11 @@ public class UserController {
     }
 
     private void validateUser(User user) {
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин не должен содержать пробелы");
-        }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
+        }
+        if (user.getLogin().contains(" ")) {
+            throw new ValidationException("Логин не должен содержать пробелы");
         }
     }
 }
