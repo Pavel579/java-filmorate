@@ -3,8 +3,11 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -15,8 +18,8 @@ public class UserControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        user = new User(1L, "mail@mail.ru", "login", "Pavel", LocalDate.of(1988, 5, 10));
-        userController = new UserController();
+        user = new User(1L, "mail@mail.ru", "login", "Pavel", LocalDate.of(1988, 5, 10), new HashSet<>());
+        userController = new UserController(new UserService(new InMemoryUserStorage()));
     }
 
     @Test

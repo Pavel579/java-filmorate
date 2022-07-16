@@ -1,13 +1,16 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,14 +18,25 @@ import java.util.Map;
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@Validated
 public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
     private final LocalDate MIN_DATE = LocalDate.of(1895, 12, 28);
-    private Long filmId = 0L;
+    private final FilmService filmService;
+
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @GetMapping
     public List<Film> getAllFilms() {
-        return new ArrayList<>(films.values());
+        return filmService.getAllFilms();
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable Long id) {
+        return filmService.getFilmById(id);
     }
 
     @PostMapping
@@ -30,8 +44,7 @@ public class FilmController {
         log.info("create film");
         validateFilm(film);
         log.debug("film passed validation");
-        film.setId(++filmId);
-        films.put(film.getId(), film);
+        filmService.addFilmToStorage(film);
         return film;
     }
 
@@ -40,12 +53,23 @@ public class FilmController {
         log.info("update film");
         validateFilm(film);
         log.debug("film passed validation");
-        if (films.containsKey(film.getId())) {
-            films.replace(film.getId(), film);
-        } else {
-            throw new ValidationException("Такого фильма нет");
-        }
+        filmService.updateFilmInStorage(film);
         return film;
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public void setLikeToFilm(@PathVariable Long id, @PathVariable Long userId) {
+        filmService.setLikeToFilm(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
+        filmService.removeLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getCountLikes(@RequestParam(required = false, defaultValue = "10") @Positive Integer count) {
+        return filmService.getCountLikes(count);
     }
 
     private void validateFilm(Film film) {
