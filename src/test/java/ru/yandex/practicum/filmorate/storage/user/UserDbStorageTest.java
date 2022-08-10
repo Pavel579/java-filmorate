@@ -8,6 +8,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.impl.FriendsDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.impl.UserDbStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class UserDbStorageTest {
     private final UserDbStorage userDbStorage;
+    private final FriendsDbStorage friendsDbStorage;
     User user;
     User user2;
     User user3;
@@ -104,8 +107,8 @@ public class UserDbStorageTest {
     public void testAddAndGetUserFriend() {
         userDbStorage.addUserToStorage(user);
         userDbStorage.addUserToStorage(user2);
-        userDbStorage.addUserFriend(user.getId(), user2.getId());
-        List<User> userFriends = userDbStorage.getListOfFriends(user.getId());
+        friendsDbStorage.addUserFriend(user.getId(), user2.getId());
+        List<User> userFriends = friendsDbStorage.getListOfFriends(user.getId());
         Optional<User> userOptional = Optional.of(userFriends.get(0));
         assertThat(userOptional)
                 .isPresent()
@@ -119,9 +122,9 @@ public class UserDbStorageTest {
         userDbStorage.addUserToStorage(user);
         userDbStorage.addUserToStorage(user2);
         userDbStorage.addUserToStorage(user4);
-        userDbStorage.addUserFriend(user.getId(), user4.getId());
-        userDbStorage.addUserFriend(user2.getId(), user4.getId());
-        List<User> userCommonFriends = userDbStorage.getCommonListOfFriends(user.getId(), user2.getId());
+        friendsDbStorage.addUserFriend(user.getId(), user4.getId());
+        friendsDbStorage.addUserFriend(user2.getId(), user4.getId());
+        List<User> userCommonFriends = friendsDbStorage.getCommonListOfFriends(user.getId(), user2.getId());
         Optional<User> userOptional = Optional.of(userCommonFriends.get(0));
         assertThat(userOptional)
                 .isPresent()

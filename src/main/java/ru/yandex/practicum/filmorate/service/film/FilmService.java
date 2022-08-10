@@ -10,17 +10,27 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.film.LikesStorage;
+import ru.yandex.practicum.filmorate.storage.film.MpaStorage;
 
 import java.util.List;
 
 @Service
 public class FilmService {
     private final FilmStorage filmDbStorage;
+    private final MpaStorage mpaDbStorage;
+    private final GenreStorage genreDbStorage;
+    private final LikesStorage likesDbStorage;
     private final UserService userService;
 
     @Autowired
-    public FilmService(FilmStorage filmDbStorage, UserService userService) {
+    public FilmService(FilmStorage filmDbStorage, MpaStorage mpaStorage,
+                       GenreStorage genreDbStorage, LikesStorage likesDbStorage, UserService userService) {
         this.filmDbStorage = filmDbStorage;
+        this.mpaDbStorage = mpaStorage;
+        this.genreDbStorage = genreDbStorage;
+        this.likesDbStorage = likesDbStorage;
         this.userService = userService;
     }
 
@@ -43,12 +53,12 @@ public class FilmService {
 
     public void setLikeToFilm(Long filmId, Long userId) {
         userService.getUserById(userId);
-        filmDbStorage.setLikeToFilm(filmId, userId);
+        likesDbStorage.setLikeToFilm(filmId, userId);
     }
 
     public void removeLike(Long filmId, Long userId) {
         userService.getUserById(userId);
-        filmDbStorage.removeLike(filmId, userId);
+        likesDbStorage.removeLike(filmId, userId);
     }
 
     public List<Film> getPopularFilms(Integer count) {
@@ -56,18 +66,18 @@ public class FilmService {
     }
 
     public Mpa getMpaById(Integer id) {
-        return filmDbStorage.getMpaById(id).orElseThrow(() -> new MpaNotFoundException("MPA не найден"));
+        return mpaDbStorage.getMpaById(id).orElseThrow(() -> new MpaNotFoundException("MPA не найден"));
     }
 
     public List<Mpa> getAllMpa() {
-        return filmDbStorage.getAllMpa();
+        return mpaDbStorage.getAllMpa();
     }
 
     public List<Genre> getAllGenres() {
-        return filmDbStorage.getAllGenres();
+        return genreDbStorage.getAllGenres();
     }
 
     public Genre getGenreById(Integer id) {
-        return filmDbStorage.getGenreById(id).orElseThrow(() -> new GenreNotFoundException("Genre не найден"));
+        return genreDbStorage.getGenreById(id).orElseThrow(() -> new GenreNotFoundException("Genre не найден"));
     }
 }

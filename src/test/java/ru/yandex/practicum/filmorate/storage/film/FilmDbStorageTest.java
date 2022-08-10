@@ -10,6 +10,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.film.impl.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.film.impl.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.film.impl.LikesDbStorage;
+import ru.yandex.practicum.filmorate.storage.film.impl.MpaDbStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -28,6 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class FilmDbStorageTest {
     private final FilmDbStorage filmDbStorage;
+    private final LikesDbStorage likesDbStorage;
+    private final GenreDbStorage genreDbStorage;
+    private final MpaDbStorage mpaDbStorage;
     Film film1;
     Film film2;
     Film film3;
@@ -101,9 +108,9 @@ public class FilmDbStorageTest {
         filmDbStorage.addFilmToStorage(film1);
         filmDbStorage.addFilmToStorage(film2);
         filmDbStorage.addFilmToStorage(film3);
-        filmDbStorage.setLikeToFilm(2L, 1L);
-        filmDbStorage.setLikeToFilm(2L, 2L);
-        filmDbStorage.setLikeToFilm(3L, 4L);
+        likesDbStorage.setLikeToFilm(2L, 1L);
+        likesDbStorage.setLikeToFilm(2L, 2L);
+        likesDbStorage.setLikeToFilm(3L, 4L);
         List<Film> filmsList = new ArrayList<>(filmDbStorage.getPopularFilms(2));
         Optional<Film> film1Optional = Optional.of(filmsList.get(0));
         Optional<Film> film2Optional = Optional.of(filmsList.get(1));
@@ -124,9 +131,9 @@ public class FilmDbStorageTest {
     public void testRemoveLike() {
         filmDbStorage.addFilmToStorage(film1);
         filmDbStorage.addFilmToStorage(film2);
-        filmDbStorage.setLikeToFilm(1L, 1L);
-        filmDbStorage.setLikeToFilm(2L, 4L);
-        filmDbStorage.setLikeToFilm(2L, 5L);
+        likesDbStorage.setLikeToFilm(1L, 1L);
+        likesDbStorage.setLikeToFilm(2L, 4L);
+        likesDbStorage.setLikeToFilm(2L, 5L);
         List<Film> filmsList = new ArrayList<>(filmDbStorage.getPopularFilms(2));
         Optional<Film> film1Optional = Optional.of(filmsList.get(0));
         assertThat(film1Optional)
@@ -134,8 +141,8 @@ public class FilmDbStorageTest {
                 .hasValueSatisfying(film ->
                         assertThat(film).hasFieldOrPropertyWithValue("description", "description2")
                 );
-        filmDbStorage.removeLike(2L, 4L);
-        filmDbStorage.removeLike(2L, 5L);
+        likesDbStorage.removeLike(2L, 4L);
+        likesDbStorage.removeLike(2L, 5L);
         filmsList.clear();
         filmsList.addAll(filmDbStorage.getPopularFilms(2));
         film1Optional = Optional.of(filmsList.get(0));
@@ -148,7 +155,7 @@ public class FilmDbStorageTest {
 
     @Test
     public void testGetAllMpa() {
-        List<Mpa> mpaList = new ArrayList<>(filmDbStorage.getAllMpa());
+        List<Mpa> mpaList = new ArrayList<>(mpaDbStorage.getAllMpa());
         Optional<Mpa> mpaOptional = Optional.of(mpaList.get(3));
         assertThat(mpaOptional)
                 .isPresent()
@@ -160,7 +167,7 @@ public class FilmDbStorageTest {
 
     @Test
     public void testGetMpaById() {
-        Optional<Mpa> mpaOptional = filmDbStorage.getMpaById(2);
+        Optional<Mpa> mpaOptional = mpaDbStorage.getMpaById(2);
         assertThat(mpaOptional)
                 .isPresent()
                 .hasValueSatisfying(mpa ->
@@ -170,7 +177,7 @@ public class FilmDbStorageTest {
 
     @Test
     public void testGetAllGenres() {
-        List<Genre> genreList = new ArrayList<>(filmDbStorage.getAllGenres());
+        List<Genre> genreList = new ArrayList<>(genreDbStorage.getAllGenres());
         Optional<Genre> genreOptional = Optional.of(genreList.get(3));
         assertThat(genreOptional)
                 .isPresent()
@@ -182,7 +189,7 @@ public class FilmDbStorageTest {
 
     @Test
     public void testGetGenreById() {
-        Optional<Genre> genreOptional = filmDbStorage.getGenreById(2);
+        Optional<Genre> genreOptional = genreDbStorage.getGenreById(2);
         assertThat(genreOptional)
                 .isPresent()
                 .hasValueSatisfying(genre ->
