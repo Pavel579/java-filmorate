@@ -2,13 +2,16 @@ package ru.yandex.practicum.filmorate.service.film;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.exception.MpaNotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.storage.film.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.film.LikesStorage;
@@ -22,15 +25,18 @@ public class FilmService {
     private final MpaStorage mpaDbStorage;
     private final GenreStorage genreDbStorage;
     private final LikesStorage likesDbStorage;
+    private final DirectorStorage directorDbStorage;
     private final UserService userService;
 
     @Autowired
     public FilmService(FilmStorage filmDbStorage, MpaStorage mpaStorage,
-                       GenreStorage genreDbStorage, LikesStorage likesDbStorage, UserService userService) {
+                       GenreStorage genreDbStorage, LikesStorage likesDbStorage,
+                       DirectorStorage directorDbStorage, UserService userService) {
         this.filmDbStorage = filmDbStorage;
         this.mpaDbStorage = mpaStorage;
         this.genreDbStorage = genreDbStorage;
         this.likesDbStorage = likesDbStorage;
+        this.directorDbStorage = directorDbStorage;
         this.userService = userService;
     }
 
@@ -79,5 +85,26 @@ public class FilmService {
 
     public Genre getGenreById(Integer id) {
         return genreDbStorage.getGenreById(id).orElseThrow(() -> new GenreNotFoundException("Genre не найден"));
+    }
+
+    public List<Director> getDirectors() {
+        return directorDbStorage.getDirectors();
+    }
+
+    public Director getDirectorById(int id) {
+        return directorDbStorage.getDirectorById(id).orElseThrow(() -> new DirectorNotFoundException("Режиссер не найден"));
+    }
+
+    public Director createDirector(Director director) {
+        return directorDbStorage.createDirector(director);
+    }
+
+    public Director updateDirector(Director director) {
+        return directorDbStorage.updateDirector(director);
+    }
+
+    public void deleteDirector(int id) {
+        directorDbStorage.getDirectorById(id);
+        directorDbStorage.deleteDirector(id);
     }
 }

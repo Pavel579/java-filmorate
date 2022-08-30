@@ -76,6 +76,8 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }
 
+    @GetMapping("")
+
     private void validateFilm(Film film) {
         if (film.getReleaseDate().isBefore(MIN_DATE)) {
             throw new ValidationException("Дата релиза фильма не должна быть до 28.12.1895");
