@@ -68,3 +68,17 @@ create table if not exists USER_FRIENDS
     USER_ID   INTEGER,
     FRIEND_ID INTEGER
 );
+
+create table if not exists DIRECTORS
+(
+    ID   INTEGER auto_increment,
+    NAME CHARACTER VARYING not null,
+    constraint DIRECTORS_PK
+        primary key (ID)
+);
+
+create table if not exists FILM_DIRECTORS
+(
+    FILM_ID     INTEGER,
+    DIRECTOR_ID INTEGER
+);

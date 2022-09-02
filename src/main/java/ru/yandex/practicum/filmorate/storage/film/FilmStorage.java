@@ -24,4 +24,6 @@ public interface FilmStorage {
 
     //Метод возвращает список размерностью count самых популярных фильмов по кол-ву лайков
     List<Film> getPopularFilms(Integer count);
+
+    List<Film> getSortedListOfFilmsByDirector(int directorId, String sortBy);
 }
