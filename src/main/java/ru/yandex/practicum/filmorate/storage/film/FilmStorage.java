@@ -11,10 +11,10 @@ public interface FilmStorage {
     List<Film> getFilms();
 
     //Метод добавляет фильм в базу данных
-    void addFilmToStorage(Film film);
+    Film addFilmToStorage(Film film);
 
     //Метод удаляет фильм из базы данных с id = filmId
-    void deleteFilmFromStorage(Long filmId);
+    void removeFilmById(Long filmId);
 
     //Метод обновляет фильм в базе данных
     Film updateFilmInStorage(Film film);

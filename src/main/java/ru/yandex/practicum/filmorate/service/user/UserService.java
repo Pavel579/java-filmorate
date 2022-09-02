@@ -13,50 +13,55 @@ import java.util.List;
 @Service
 @Slf4j
 public class UserService {
-    private final UserStorage UserDbStorage;
-    private final FriendsStorage FriendsDbStorage;
+    private final UserStorage userDbStorage;
+    private final FriendsStorage friendsDbStorage;
 
     @Autowired
     public UserService(UserStorage UserDbStorage, FriendsStorage friendsDbStorage) {
-        this.UserDbStorage = UserDbStorage;
-        FriendsDbStorage = friendsDbStorage;
+        this.userDbStorage = UserDbStorage;
+        this.friendsDbStorage = friendsDbStorage;
     }
 
     public List<User> getAllUsers() {
-        return UserDbStorage.getUsers();
+        return userDbStorage.getUsers();
     }
 
     public User getUserById(Long id) {
-        return UserDbStorage.getUserById(id).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+        return userDbStorage.getUserById(id).orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
     }
 
     public void addUserToStorage(User user) {
-        UserDbStorage.addUserToStorage(user);
+        userDbStorage.addUserToStorage(user);
     }
 
     public void updateUserInStorage(User user) {
         getUserById(user.getId());
-        UserDbStorage.updateUserInStorage(user);
+        userDbStorage.updateUserInStorage(user);
     }
 
     public void addUserFriend(Long userId, Long friendId) {
         getUserById(userId);
         getUserById(friendId);
-        FriendsDbStorage.addUserFriend(userId, friendId);
+        friendsDbStorage.addUserFriend(userId, friendId);
     }
 
-    public boolean deleteUserFromFriends(Long userId, Long friendId) {
+    public void deleteUserFromFriends(Long userId, Long friendId) {
         getUserById(userId);
         getUserById(friendId);
-        return FriendsDbStorage.deleteUserFromFriends(userId, friendId);
+        friendsDbStorage.deleteUserFromFriends(userId, friendId);
     }
 
     public List<User> getListOfFriends(Long userId) {
         getUserById(userId);
-        return FriendsDbStorage.getListOfFriends(userId);
+        return friendsDbStorage.getListOfFriends(userId);
     }
 
     public List<User> getCommonListOfFriends(Long userId, Long userOtherId) {
-        return FriendsDbStorage.getCommonListOfFriends(userId, userOtherId);
+        return friendsDbStorage.getCommonListOfFriends(userId, userOtherId);
+    }
+
+    public void removeUserById(Long userId) {
+        getUserById(userId);
+        userDbStorage.removeUserById(userId);
     }
 }

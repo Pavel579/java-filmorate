@@ -49,8 +49,7 @@ public class FilmController {
         log.info("create film");
         validateFilm(film);
         log.debug("film passed validation");
-        filmService.addFilmToStorage(film);
-        return film;
+        return filmService.addFilmToStorage(film);
     }
 
     @PutMapping("/films")
@@ -59,6 +58,11 @@ public class FilmController {
         validateFilm(film);
         log.debug("film passed validation");
         return filmService.updateFilmInStorage(film);
+    }
+
+    @DeleteMapping("/films/{filmId}")
+    public void removeFilmById(@PathVariable Long filmId){
+        filmService.removeFilmById(filmId);
     }
 
     @PutMapping("/films/{id}/like/{userId}")

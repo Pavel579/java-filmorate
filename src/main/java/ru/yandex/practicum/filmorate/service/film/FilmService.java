@@ -48,8 +48,8 @@ public class FilmService {
         return filmDbStorage.getFilmById(id).orElseThrow(() -> new FilmNotFoundException("Фильм не найден"));
     }
 
-    public void addFilmToStorage(Film film) {
-        filmDbStorage.addFilmToStorage(film);
+    public Film addFilmToStorage(Film film) {
+        return filmDbStorage.addFilmToStorage(film);
     }
 
     public Film updateFilmInStorage(Film film) {
@@ -112,5 +112,10 @@ public class FilmService {
     public List<Film> getSortedListOfFilmsByDirector(int directorId, String sortBy) {
         getDirectorById(directorId);
         return filmDbStorage.getSortedListOfFilmsByDirector(directorId, sortBy);
+    }
+
+    public void removeFilmById(Long filmId) {
+        getFilmById(filmId);
+        filmDbStorage.removeFilmById(filmId);
     }
 }
