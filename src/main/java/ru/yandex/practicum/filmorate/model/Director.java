@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
+
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -13,5 +15,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Director {
     Integer id;
+    @NotBlank
     String name;
 }

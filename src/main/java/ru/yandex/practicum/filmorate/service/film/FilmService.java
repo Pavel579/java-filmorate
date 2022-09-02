@@ -100,11 +100,17 @@ public class FilmService {
     }
 
     public Director updateDirector(Director director) {
+        getDirectorById(director.getId());
         return directorDbStorage.updateDirector(director);
     }
 
     public void deleteDirector(int id) {
-        directorDbStorage.getDirectorById(id);
+        getDirectorById(id);
         directorDbStorage.deleteDirector(id);
+    }
+
+    public List<Film> getSortedListOfFilmsByDirector(int directorId, String sortBy) {
+        getDirectorById(directorId);
+        return filmDbStorage.getSortedListOfFilmsByDirector(directorId, sortBy);
     }
 }

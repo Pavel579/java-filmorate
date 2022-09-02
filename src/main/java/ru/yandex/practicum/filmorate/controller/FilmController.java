@@ -76,8 +76,12 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }
 
-    @GetMapping("")
+    @GetMapping("/films/director/{directorId}")
+    public List<Film> getSortedListOfFilmsByDirector(@PathVariable int directorId, @RequestParam String sortBy){
+        return filmService.getSortedListOfFilmsByDirector(directorId, sortBy);
+    }
 
+    @GetMapping("")
     private void validateFilm(Film film) {
         if (film.getReleaseDate().isBefore(MIN_DATE)) {
             throw new ValidationException("Дата релиза фильма не должна быть до 28.12.1895");

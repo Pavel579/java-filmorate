@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -54,6 +55,7 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
         film.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         addGenresToTable(film);
+        addDirectorToTable(film);
     }
 
     @Override
@@ -70,10 +72,15 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(),
                 film.getReleaseDate(), film.getDuration(), film.getMpa().getId());
         String sqlQuery2 = "DELETE FROM film_genres WHERE film_id = ?";
+        String sqlQuery3 = "DELETE FROM film_directors WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery2, film.getId());
+        jdbcTemplate.update(sqlQuery3, film.getId());
 
         if (film.getGenres() != null) {
             film.setGenres(addGenresToTable(film));
+        }
+        if (film.getDirectors() != null) {
+            film.setDirectors(addDirectorToTable(film));
         }
         return film;
     }
@@ -86,10 +93,31 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopularFilms(Integer count) {
-        String sqlQuery = "SELECT * FROM films f join MPA M on M.ID = f.MPA_ID " +
+        String sqlQuery = "SELECT * FROM films f JOIN MPA M ON M.ID = f.MPA_ID " +
                 "LEFT JOIN (SELECT film_id, COUNT(user_id) likes_quantity FROM likes " +
                 "GROUP BY film_id) l ON f.film_id = l.FILM_ID ORDER BY likes_quantity DESC LIMIT ?";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), count);
+    }
+
+    @Override
+    public List<Film> getSortedListOfFilmsByDirector(int directorId, String sortBy) {
+        String sqlQuery = "";
+        if (sortBy.equals("likes")) {
+            sqlQuery = "SELECT * FROM films f " +
+                    "JOIN MPA M ON M.ID = f.MPA_ID " +
+                    "JOIN film_directors fd ON f.film_id = fd.film_id " +
+                    "LEFT JOIN (SELECT film_id, COUNT(user_id) likes_quantity FROM likes " +
+                    "GROUP BY film_id) l ON f.film_id = l.FILM_ID " +
+                    "WHERE fd.director_id = ? " +
+                    "ORDER BY likes_quantity DESC";
+        } else if (sortBy.equals("year")) {
+            sqlQuery = "SELECT * FROM films f " +
+                    "JOIN MPA M ON M.ID = f.MPA_ID " +
+                    "JOIN film_directors fd ON f.film_id = fd.film_id " +
+                    "WHERE fd.director_id = ? " +
+                    "ORDER BY YEAR(f.RELEASE_DATE)";
+        }
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), directorId);
     }
 
     private Genre mapRowToGenres(ResultSet resultSet, int rowNum) throws SQLException {
@@ -108,7 +136,10 @@ public class FilmDbStorage implements FilmStorage {
         List<Genre> genres = makeGenres(id);
         Set<Genre> genresSet = new TreeSet<>(Comparator.comparing(Genre::getId));
         genresSet.addAll(genres);
-        return new Film(id, name, description, releaseDate, duration, mpa, genresSet);
+        List<Director> directors = makeDirectors(id);
+        Set<Director> directorsSet = new TreeSet<>(Comparator.comparing(Director::getId));
+        directorsSet.addAll(directors);
+        return new Film(id, name, description, releaseDate, duration, mpa, genresSet, directorsSet);
     }
 
     private List<Genre> makeGenres(Long id) {
@@ -119,7 +150,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sqlQuery, this::mapRowToGenres, id);
     }
 
-    private Set<Genre> addGenresToTable(Film film){
+    private Set<Genre> addGenresToTable(Film film) {
         String sqlQuery = "INSERT INTO film_genres (film_id, genre_id) " +
                 "VALUES (?, ?)";
         TreeSet<Genre> sortedGenre = null;
@@ -131,5 +162,29 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
         return sortedGenre;
+    }
+
+    private Set<Director> addDirectorToTable(Film film) {
+        String sqlQuery = "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
+        if (film.getDirectors() != null) {
+            film.getDirectors().forEach(director -> jdbcTemplate.update(sqlQuery, film.getId(), director.getId()));
+            /*for (Director director : film.getDirectors()){
+                jdbcTemplate.update(sqlQuery, director.getId(), director.getName());
+            }*/
+        }
+        return film.getDirectors();
+    }
+
+    protected List<Director> makeDirectors(Long id) {
+        String sqlQuery = "SELECT * FROM directors d " +
+                "JOIN film_directors fd ON d.id = fd.director_id " +
+                "WHERE fd.film_id = ?";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToDirector, id);
+    }
+
+    private Director mapRowToDirector(ResultSet resultSet, int rowNum) throws SQLException {
+        return new Director(
+                resultSet.getInt("id"),
+                resultSet.getString("name"));
     }
 }

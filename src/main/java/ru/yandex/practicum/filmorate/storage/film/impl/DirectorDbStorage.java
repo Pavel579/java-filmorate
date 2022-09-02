@@ -64,6 +64,8 @@ public class DirectorDbStorage implements DirectorStorage {
         jdbcTemplate.update(sqlQuery, id);
     }
 
+
+
     private Director mapRowToDirector(ResultSet resultSet, int rowNum) throws SQLException {
         return new Director(
                 resultSet.getInt("id"),
