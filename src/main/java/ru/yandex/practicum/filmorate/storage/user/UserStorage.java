@@ -13,7 +13,7 @@ public interface UserStorage {
     void addUserToStorage(User user);
 
     //Метод удаляет пользователя из базы данных
-    boolean deleteUserFromStorage(Long userId);
+    void removeUserById(Long userId);
 
     //Метод обновляет пользователя в базе данных
     void updateUserInStorage(User user);

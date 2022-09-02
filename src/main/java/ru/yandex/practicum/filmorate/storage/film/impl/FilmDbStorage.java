@@ -39,7 +39,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void addFilmToStorage(Film film) {
+    public Film addFilmToStorage(Film film) {
         String sqlQuery = "INSERT INTO films (film_name, film_description, release_date, duration, mpa_id) " +
                 "VALUES (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -54,12 +54,15 @@ public class FilmDbStorage implements FilmStorage {
             return stmt;
         }, keyHolder);
         film.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
-        addGenresToTable(film);
+        if (film.getGenres()!=null){
+            film.setGenres(addGenresToTable(film));
+        }
         addDirectorToTable(film);
+        return film;
     }
 
     @Override
-    public void deleteFilmFromStorage(Long filmId) {
+    public void removeFilmById(Long filmId) {
         String sqlQuery = "DELETE FROM films WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery, filmId);
     }
