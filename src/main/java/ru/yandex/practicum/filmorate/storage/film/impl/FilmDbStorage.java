@@ -71,9 +71,9 @@ public class FilmDbStorage implements FilmStorage {
     public Film updateFilmInStorage(Film film) {
         String sqlQuery = "UPDATE films SET " +
                 "film_name = ?, film_description = ?, release_date = ?, " +
-                "duration = ?, mpa_id = ?";
+                "duration = ?, mpa_id = ? WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(),
-                film.getReleaseDate(), film.getDuration(), film.getMpa().getId());
+                film.getReleaseDate(), film.getDuration(), film.getMpa().getId(), film.getId());
         String sqlQuery2 = "DELETE FROM film_genres WHERE film_id = ?";
         String sqlQuery3 = "DELETE FROM film_directors WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery2, film.getId());
@@ -100,6 +100,15 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN (SELECT film_id, COUNT(user_id) likes_quantity FROM likes " +
                 "GROUP BY film_id) l ON f.film_id = l.FILM_ID ORDER BY likes_quantity DESC LIMIT ?";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), count);
+    }
+
+    @Override
+    public List<Film> getSortedCommonFilms(Long userId, Long friendId) {
+        String sqlQuery = "SELECT * FROM films f JOIN MPA M ON M.ID = f.MPA_ID " +
+                "JOIN likes l ON l.film_id = f.film_id " +
+                "JOIN likes l2 ON l2.film_id = f.film_id " +
+                "WHERE l.USER_ID = ? AND l2.USER_ID = ?";
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), userId, friendId);
     }
 
     @Override
