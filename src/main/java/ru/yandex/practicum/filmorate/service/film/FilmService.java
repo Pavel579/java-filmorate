@@ -118,4 +118,10 @@ public class FilmService {
         getFilmById(filmId);
         filmDbStorage.removeFilmById(filmId);
     }
+
+    public List<Film> getSortedCommonFilms(Long userId, Long friendId) {
+        userService.getUserById(userId);
+        userService.getUserById(friendId);
+        return filmDbStorage.getSortedCommonFilms(userId, friendId);
+    }
 }
