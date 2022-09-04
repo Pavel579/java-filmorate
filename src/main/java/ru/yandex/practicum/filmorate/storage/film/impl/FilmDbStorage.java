@@ -54,7 +54,7 @@ public class FilmDbStorage implements FilmStorage {
             return stmt;
         }, keyHolder);
         film.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
-        if (film.getGenres()!=null){
+        if (film.getGenres() != null) {
             film.setGenres(addGenresToTable(film));
         }
         addDirectorToTable(film);
@@ -130,6 +130,43 @@ public class FilmDbStorage implements FilmStorage {
                     "ORDER BY YEAR(f.RELEASE_DATE)";
         }
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), directorId);
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, List<String> by) {
+        String sqlQuery;
+        String keyWord = '%' + query + '%';
+        if (by.contains("title") && !by.contains("director")) {
+            sqlQuery = "SELECT * FROM FILMS f " +
+                    "LEFT JOIN MPA M ON M.ID = f.MPA_ID " +
+                    "LEFT JOIN LIKES FL ON f.FILM_ID = FL.FILM_ID " +
+                    "LEFT JOIN film_directors fd ON f.FILM_ID = fd.film_id " +
+                    "LEFT JOIN directors d ON fd.DIRECTOR_ID = d.ID " +
+                    "WHERE UPPER(f.film_name) LIKE UPPER(?) " +
+                    "GROUP BY f.FILM_ID " +
+                    "ORDER BY count(USER_ID) desc";
+            return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), keyWord);
+        } else if (by.contains("director") && !by.contains("title")) {
+            sqlQuery = "SELECT * FROM FILMS f " +
+                    "LEFT JOIN MPA M ON M.ID = f.MPA_ID " +
+                    "LEFT JOIN LIKES FL ON f.FILM_ID = FL.FILM_ID " +
+                    "LEFT JOIN film_directors fd ON f.FILM_ID = fd.film_id " +
+                    "LEFT JOIN directors d ON fd.DIRECTOR_ID = d.ID " +
+                    "WHERE UPPER(d.name) LIKE UPPER(?) " +
+                    "GROUP BY f.FILM_ID " +
+                    "ORDER BY count(USER_ID) desc";
+            return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), keyWord);
+        } else {
+            sqlQuery = "SELECT * FROM FILMS f " +
+                    "LEFT JOIN MPA M ON M.ID = f.MPA_ID " +
+                    "LEFT JOIN LIKES FL ON f.FILM_ID = FL.FILM_ID " +
+                    "LEFT JOIN film_directors fd ON f.FILM_ID = fd.film_id " +
+                    "LEFT JOIN directors d ON fd.DIRECTOR_ID = d.ID " +
+                    "WHERE UPPER(f.film_name) LIKE UPPER(?) OR UPPER(d.name) LIKE UPPER(?) " +
+                    "GROUP BY f.FILM_ID " +
+                    "ORDER BY count(USER_ID) desc";
+            return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), keyWord, keyWord);
+        }
     }
 
     private Genre mapRowToGenres(ResultSet resultSet, int rowNum) throws SQLException {
