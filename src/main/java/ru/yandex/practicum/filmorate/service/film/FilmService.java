@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.film;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
@@ -123,5 +124,14 @@ public class FilmService {
         userService.getUserById(userId);
         userService.getUserById(friendId);
         return filmDbStorage.getSortedCommonFilms(userId, friendId);
+    }
+
+    public List<Film> searchFilms(String query, List<String> by){
+        if (((by.contains("title") || by.contains("director")) && by.size()==1)
+                || (by.contains("title") && by.contains("director") && by.size() == 2)){
+            return filmDbStorage.searchFilms(query, by);
+        }else {
+            throw new BadRequestException(String.format("RequestParam By = %s is invalid. Must be \"title\" or \"director\"", by));
+        }
     }
 }
