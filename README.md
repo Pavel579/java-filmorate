@@ -1,3 +1,3 @@
 # java-filmorate
-Template repository for Filmorate project.
+"Кинопоисковик" - социальная сеть, позволяющая пользователям выбирать фильмы по рейтингам и жанрам, а также на основе оценок друзей
 ![img_1.png](img_1.png)
